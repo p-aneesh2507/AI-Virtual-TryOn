@@ -6,7 +6,7 @@ import uuid
 import traceback
 
 from gradio_client import Client, handle_file
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -92,9 +92,10 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://ai-virtual-try-on-jade.vercel.app",
+],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -150,6 +151,7 @@ async def upload_image(file: UploadFile = File(...)):
 
 @app.post("/try-on")
 async def try_on(
+    request: Request,
     person_image: UploadFile = File(...),
     outfit_id: int = 0,
 ):
@@ -360,10 +362,9 @@ async def try_on(
         # Create browser-accessible URL
         # --------------------------------------------------
 
-        result_url = (
-            f"http://127.0.0.1:8000"
-            f"/generated/{result_filename}"
-        )
+        result_url = str(
+    request.base_url
+) + f"generated/{result_filename}"
 
 
         print()

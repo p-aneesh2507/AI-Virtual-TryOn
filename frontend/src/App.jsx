@@ -68,7 +68,8 @@ const handleUpload = async () => {
     setMessage("AI is generating your virtual try-on...");
 
     const response = await fetch(
-      `http://127.0.0.1:8000/try-on?outfit_id=${selectedOutfit}`,
+        `${import.meta.env.VITE_API_URL}/try-on?outfit_id=${selectedOutfit}`,
+
       {
         method: "POST",
         body: formData,
