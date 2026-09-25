@@ -256,14 +256,22 @@
 }
 
 .outfit-image {
+  width: 100%;
   height: 180px;
-  display: grid;
-  place-items: center;
-  background:
-    radial-gradient(circle, rgba(139, 92, 246, 0.15), transparent 65%),
-    #101117;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #f5f5f5;
 }
 
+.outfit-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
 .outfit-image span {
   font-size: 65px;
 }
@@ -384,5 +392,108 @@ footer {
   footer {
     flex-direction: column;
     gap: 8px;
+  }
+}
+/* AI Result */
+
+.result-section {
+  margin-top: 55px;
+  padding: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(20px);
+}
+
+.result-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.result-badge {
+  display: inline-block;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  color: #b99aff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.result-header h2 {
+  margin: 14px 0 8px;
+  font-size: 26px;
+}
+
+.result-header p {
+  margin: 0;
+  color: #858590;
+  font-size: 13px;
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.result-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 420px;
+  border-radius: 16px;
+  background: #050507;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.result-card img {
+  width: 100%;
+  height: 500px;
+  display: block;
+  object-fit: contain;
+  background: #050507;
+}
+
+.result-label {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  padding: 7px 10px;
+  border-radius: 7px;
+  background: rgba(8, 9, 13, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.result-button {
+  display: block;
+  width: fit-content;
+  margin: 25px auto 0;
+  padding: 12px 20px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #8056ed, #4fc9ed);
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.result-button:hover {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 700px) {
+  .result-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .result-card img {
+    height: 420px;
   }
 }

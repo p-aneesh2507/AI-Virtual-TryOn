@@ -6,34 +6,35 @@ const outfits = [
     id: 1,
     name: "Classic Black",
     category: "T-Shirt",
-    icon: "👕",
+    image: "/garments/classic-black.png",
   },
   {
     id: 2,
     name: "Urban Blue",
     category: "Casual Shirt",
-    icon: "👔",
+    image: "/garments/urban-blue.png",
   },
   {
     id: 3,
     name: "Minimal White",
     category: "T-Shirt",
-    icon: "👕",
+    image: "/garments/minimal-white.png",
   },
   {
     id: 4,
     name: "Street Style",
     category: "Jacket",
-    icon: "🧥",
+    image: "/garments/street-style.png",
   },
 ];
 
 function App() {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [selectedOutfit, setSelectedOutfit] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [message, setMessage] = useState("");
+const [selectedFile, setSelectedFile] = useState(null);
+const [preview, setPreview] = useState(null);
+const [selectedOutfit, setSelectedOutfit] = useState(null);
+const [uploading, setUploading] = useState(false);
+const [message, setMessage] = useState("");
+const [resultImage, setResultImage] = useState(null);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -45,39 +46,55 @@ function App() {
     setMessage("");
   };
 
-  const handleUpload = async () => {
-    if (!selectedFile) {
-      setMessage("Please upload your photo first.");
-      return;
-    }
+const handleUpload = async () => {
+  if (!selectedFile) {
+    setMessage("Please upload your photo first.");
+    return;
+  }
 
-    setUploading(true);
-    setMessage("");
+  if (!selectedOutfit) {
+    setMessage("Please choose an outfit first.");
+    return;
+  }
 
-    const formData = new FormData();
-    formData.append("file", selectedFile);
+  setUploading(true);
+  setMessage("");
+  setResultImage(null);
 
-    try {
-      const response = await fetch("http://127.0.0.1:8000/upload", {
+  const formData = new FormData();
+  formData.append("person_image", selectedFile);
+
+  try {
+    setMessage("AI is generating your virtual try-on...");
+
+    const response = await fetch(
+      `http://127.0.0.1:8000/try-on?outfit_id=${selectedOutfit}`,
+      {
         method: "POST",
         body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Upload failed");
       }
+    );
 
-      const data = await response.json();
+    const data = await response.json();
 
-      setMessage(`✓ ${data.message}`);
-    } catch (error) {
-      console.error(error);
-      setMessage("Unable to connect to the backend.");
-    } finally {
-      setUploading(false);
+    if (!response.ok) {
+      throw new Error(data.detail || "Try-on request failed");
     }
-  };
 
+    if (!data.result_url) {
+      throw new Error("AI did not return an image.");
+    }
+
+    setResultImage(data.result_url);
+    setMessage("✓ Your virtual try-on is ready!");
+
+  } catch (error) {
+    console.error(error);
+    setMessage(`Unable to generate try-on: ${error.message}`);
+  } finally {
+    setUploading(false);
+  }
+};
   return (
     <div className="app">
       <header className="navbar">
@@ -174,7 +191,10 @@ function App() {
                   onClick={() => setSelectedOutfit(outfit.id)}
                 >
                   <div className="outfit-image">
-                    <span>{outfit.icon}</span>
+                    <img
+                    src={outfit.image}
+                    alt={outfit.name}
+                    />
                   </div>
 
                   <div className="outfit-info">
@@ -194,11 +214,11 @@ function App() {
         {/* Action */}
         <section className="tryon-section">
           <button
-            className="tryon-button"
-            onClick={handleUpload}
-            disabled={!selectedFile || uploading}
+          className="tryon-button"
+          onClick={handleUpload}
+          disabled={!selectedFile || !selectedOutfit || uploading}
           >
-            {uploading ? "Uploading..." : "✨ Try On This Outfit"}
+           {uploading ? "Processing..." : "✨ Try On This Outfit"}
           </button>
 
           {!selectedFile && (
@@ -209,12 +229,52 @@ function App() {
             <p className="hint">Choose an outfit to complete your selection</p>
           )}
 
-          {message && (
-            <div className="message">
-              {message}
+          {resultImage && (
+            <div className="result-image">
+              <img src={resultImage} alt="Virtual Try-On Result" />
             </div>
           )}
         </section>
+        {resultImage && (
+  <section className="result-section">
+    <div className="result-header">
+      <span className="result-badge">AI RESULT</span>
+      <h2>Your Virtual Try-On</h2>
+      <p>
+        See how the selected outfit looks on you.
+      </p>
+    </div>
+
+    <div className="result-grid">
+      <div className="result-card">
+        <div className="result-label">BEFORE</div>
+
+        <img
+          src={preview}
+          alt="Original"
+        />
+      </div>
+
+      <div className="result-card">
+        <div className="result-label">AI TRY-ON</div>
+
+        <img
+          src={resultImage}
+          alt="AI generated virtual try-on"
+        />
+      </div>
+    </div>
+
+    <a
+      href={resultImage}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="result-button"
+    >
+      View Full Result ↗
+    </a>
+  </section>
+)}
       </main>
 
       <footer>
