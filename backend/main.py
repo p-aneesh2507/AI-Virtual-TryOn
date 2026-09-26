@@ -4,6 +4,7 @@ import shutil
 import tempfile
 import uuid
 import traceback
+import os
 
 from gradio_client import Client, handle_file
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request
@@ -31,18 +32,30 @@ GENERATED_DIR.mkdir(exist_ok=True)
 # --------------------------------------------------
 # Hugging Face IDM-VTON
 # --------------------------------------------------
-
 HF_SPACE = "yisol/IDM-VTON"
 
 print()
+
 print("=" * 60)
 print("Connecting to Hugging Face IDM-VTON...")
 print("=" * 60)
 
-hf_client = Client(HF_SPACE)
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+if HF_TOKEN:
+    print("Using authenticated Hugging Face connection...")
+    hf_client = Client(
+        HF_SPACE,
+        token=HF_TOKEN
+    )
+else:
+    print("Using unauthenticated Hugging Face connection...")
+    hf_client = Client(HF_SPACE)
 
 print("Hugging Face IDM-VTON connected!")
+
 print("=" * 60)
+
 print()
 
 
@@ -100,7 +113,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 # --------------------------------------------------
 # Serve generated images
 # --------------------------------------------------
